@@ -33,6 +33,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setConnectionState } from "./redux/connectionSlice";
 import { useTonAddress, useIsConnectionRestored } from "@tonconnect/ui-react";
 import { useTonConnectUI } from "@tonconnect/ui-react";
+import * as crypto from "crypto-js";
 
 const localStorageKey = "my-dapp-auth-token";
 const payloadTTLMS = 1000 * 60 * 20;
@@ -315,20 +316,45 @@ function App() {
   const loginTelegram = () => {
     //这里唯一要做的就是把你机器人参数传入进去（获取机器人token哪里可以看到）
 
-    (window as any).Telegram.Login.auth(
-      {
-        bot_id: "7237282344:AAF_CvT_ahfnj22UD8WXw5337J7A4ogx8iA",
-        request_access: "write",
-        embed: 1,
-      },
-      (data: any) => {
-        console.log(data, "这是回调数据"); //这里的data和之前返回的user数据和格式无差异
-        if (!data) {
-          //失败时你需要做的逻辑
-        }
-        //电报登录成功你需要做的逻辑（这里我是直接写了一个函数去调用登录成功后的业务逻辑）
-      }
-    );
+    // (window as any).Telegram.Login.auth(
+    //   {
+    //     bot_id: "7237282344:AAF_CvT_ahfnj22UD8WXw5337J7A4ogx8iA",
+    //     request_access: "write",
+    //     embed: 1,
+    //   },
+    //   (data: any) => {
+    //     console.log(data, "这是回调数据"); //这里的data和之前返回的user数据和格式无差异
+    //     if (!data) {
+    //       //失败时你需要做的逻辑
+    //     }
+    //     //电报登录成功你需要做的逻辑（这里我是直接写了一个函数去调用登录成功后的业务逻辑）
+    //   }
+    // );
+    const bot_token = "7237282344:AAF_CvT_ahfnj22UD8WXw5337J7A4ogx8iA";
+    const data = {
+      id: 6247988347,
+      first_name: "Micky",
+      last_name: "Wang",
+      username: "MickyWang3",
+      photo_url:
+        "https://t.me/i/userpic/320/ZykSEm-sWNCBNTrcySgSKD7oG4AEYb2gkYzc5JhQwYPPDn2giMNntrhSR61Y7eEc.jpg",
+      auth_date: 1732703371,
+      hash: "de69bb5cafc7703222bc3e130e500c1f3c87b83320982c3a6a90337ff2374bf5",
+    };
+    const data_check_string = `auth_date=${data.auth_date}\nfirst_name=${data.first_name}\nid=${data.id}\nlast_name=${data.last_name}\nphoto_url=${data.photo_url}\nusername=${data.username}`;
+
+    // Generate secret key using SHA256 hash of bot token
+    const secret_key = crypto.SHA256(bot_token);
+
+    // Calculate HMAC-SHA256 signature
+    const calculated_hash = crypto
+      .HmacSHA256(data_check_string, secret_key)
+      .toString(crypto.enc.Hex);
+
+    // Verify the hash
+    if (calculated_hash === data.hash) {
+      console.log("Data is from Telegram");
+    }
   };
 
   return (
