@@ -29,11 +29,13 @@ import receiveIcon from "./assets/receive_icon.svg";
 import sellIcon from "./assets/sell_icon.svg";
 import { useTonWallet } from "@tonconnect/ui-react";
 import WalletConnectModal from "./components/connectors/WalletConnectModal";
+import SolanaConnectModal from "./components/connectors/SolanaConnectModal";
 import { useDispatch, useSelector } from "react-redux";
 import { setConnectionState } from "./redux/connectionSlice";
 import { useTonAddress, useIsConnectionRestored } from "@tonconnect/ui-react";
 import { useTonConnectUI } from "@tonconnect/ui-react";
 import * as crypto from "crypto-js";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 const localStorageKey = "my-dapp-auth-token";
 const payloadTTLMS = 1000 * 60 * 20;
@@ -58,6 +60,7 @@ function App() {
   const connectionState = useSelector(
     (state: RootState) => state.connection.connectionState
   );
+  const { connected, publicKey, disconnect } = useWallet();
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -313,6 +316,17 @@ function App() {
     // });
   };
 
+  /**
+   *
+   * GMGN 使用bot 登录的实现：
+   * 1. 前端生成随机字符串，用于 localStorage 中位 key保存 tg login redirect uri
+   * 2. 跳转 链接打开 tg bot，带着参数 key  https://t.me/gmgnaibot?start=l_zh_t_6a8b1f3f03f71fea
+   * 3. tg bot 识别参数，提示登录按钮，用户点击登录按钮，获得用户的 user id 和 code，bot 生成一个 web 链接带着 user id 和 code
+   *  https://gmgn.ai/tglogin?user_id=b2c6e2d9-f1b9-4965-9bb3-06c187fdd23e&session_code=mfCaUqrLuvLsIu0j9704BvdAW5WwMq&redirect_url=6a8b1f3f03f71fea&chain=sol
+   * 4. 页面打开链接，使用 user id 和 code 向后端请求 token，后端生成 access tokeh 和 refresh token 并返回给前端，前端保存 token 到 localStorage 中，并跳转到 gmgn.ai 页面
+   * 5. 前端从 localStorage中取出 key 保存的 redirect uri，并跳转到该页面
+   *
+   */
   const loginTelegram = () => {
     //这里唯一要做的就是把你机器人参数传入进去（获取机器人token哪里可以看到）
     const bot_token = "7237282344:AAF_CvT_ahfnj22UD8WXw5337J7A4ogx8iA";
@@ -351,6 +365,7 @@ function App() {
         // Verify the hash
         if (calculated_hash === data.hash) {
           alert("Data is from Telegram");
+          //return access token & refresh token
         }
       }
     );
@@ -433,6 +448,21 @@ function App() {
                 icon={walletConnectIcon}
                 accountCallback={() => {}}
               />
+              <SolanaConnectModal
+                title="Solana Connect"
+                icon={walletConnectIcon}
+              />
+              <div>
+                <div className="flex flex-col items-center">
+                  <span>Solana: {publicKey?.toString()}</span>
+                  <button
+                    onClick={disconnect}
+                    className="border-2 border-customGrayButton  rounded-md p-2 my-2"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           {showConnectOverlay && (
