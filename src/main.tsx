@@ -22,13 +22,13 @@ import "./index.css";
 import {
   ConnectionProvider,
   WalletProvider,
-  useWallet,
+  //   useWallet,
 } from "@solana/wallet-adapter-react";
 import {
   PhantomWalletAdapter,
-  SolflareWalletAdapter,
-  TorusWalletAdapter,
-  LedgerWalletAdapter,
+  //   SolflareWalletAdapter,
+  //   TorusWalletAdapter,
+  //   LedgerWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 // Hide the main button
@@ -46,7 +46,7 @@ createWalletConnectModal();
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
-const network = "mainnet-beta";
+// const network = "mainnet-beta";
 const wallets = [new PhantomWalletAdapter()];
 
 const endpoint =

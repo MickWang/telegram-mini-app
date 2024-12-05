@@ -60,7 +60,7 @@ function App() {
   const connectionState = useSelector(
     (state: RootState) => state.connection.connectionState
   );
-  const { connected, publicKey, disconnect } = useWallet();
+  const { publicKey, disconnect } = useWallet();
 
   const dispatch = useDispatch<AppDispatch>();
 
